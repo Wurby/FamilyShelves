@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Housemaster</string>
+    <string name="title_activity_main">Housemaster</string>
+    <string name="package_name">com.housemaster.app</string>
+    <string name="custom_url_scheme">com.housemaster.app</string>
+</resources>

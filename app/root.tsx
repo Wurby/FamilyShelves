@@ -9,6 +9,8 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { AuthProvider } from "./context/AuthContext";
+import Nav from "./components/Nav";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -28,12 +30,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+        />
         <Meta />
         <Links />
       </head>
-      <body>
-        {children}
+      <body className="min-h-screen bg-slate-200 dark:bg-slate-950">
+        <div className="h-[env(safe-area-inset-top,47px)] w-full min-h-[env(safe-area-inset-top,47px)] block" />
+        <Nav></Nav>
+        <main className="flex flex-col min-h-screen bg-slate-200 dark:bg-slate-950">
+          <div className="h-12 w-full min-h-12 block" />
+          <AuthProvider>{children}</AuthProvider>
+        </main>
         <ScrollRestoration />
         <Scripts />
       </body>

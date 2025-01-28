@@ -1,4 +1,4 @@
-# Housemaster
+# familyshelves
 
 A simple app to manage your house.
 

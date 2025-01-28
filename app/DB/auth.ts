@@ -18,6 +18,7 @@ export interface UserData {
 }
 
 export type Shelf = {
+  id?: string; // Make it optional for new shelves
   name: string;
   settings: {
     defaultUnit: string;

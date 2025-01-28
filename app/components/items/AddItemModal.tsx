@@ -21,6 +21,7 @@ interface AddItemModalProps {
     expirationDays: number;
     location?: string;
   };
+  shelfName: string;
 }
 
 export function AddItemModal({
@@ -32,6 +33,7 @@ export function AddItemModal({
     quantity: 1,
     expirationDays: 7,
   },
+  shelfName,
 }: AddItemModalProps) {
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState(defaultValues.quantity);
@@ -78,7 +80,7 @@ export function AddItemModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New Item"
+      title={`Add Item to ${shelfName}`}
       isSubmitting={isSubmitting}
       footer={
         <div className="flex justify-end gap-2">

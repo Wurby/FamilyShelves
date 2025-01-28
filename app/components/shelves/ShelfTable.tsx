@@ -1,19 +1,28 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "~/context/AuthContext";
-import { getUserShelves, createShelf, addItemToShelf } from "~/DB/shelves";
+import {
+  getUserShelves,
+  createShelf,
+  addItemToShelf,
+  deleteShelf,
+} from "~/DB/shelves";
 import type { Shelf } from "~/DB/auth";
 import { Text } from "../Text";
 import { Button } from "../Button";
 import { AddShelfModal } from "./AddShelfModal";
 import { AddItemModal } from "../items/AddItemModal";
+import { DeleteShelfModal } from "./DeleteShelfModal";
+import { ShelfTabs } from "./ShelfTabs";
+import { Plus } from "lucide-react";
 
-export function ShelvesTabView() {
-  const [shelves, setShelves] = useState<(Shelf & { id: string })[]>([]);
+export function ShelfTable() {
+  const [shelves, setShelves] = useState<Shelf[]>([]);
   const [activeTab, setActiveTab] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const [isAddShelfModalOpen, setIsAddShelfModalOpen] = useState(false);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [shelfToDelete, setShelfToDelete] = useState<Shelf | null>(null);
 
   useEffect(() => {
     async function fetchShelves() {
@@ -22,8 +31,8 @@ export function ShelvesTabView() {
       try {
         const userShelves = await getUserShelves(user.uid);
         setShelves(userShelves);
-        if (userShelves.length > 0) {
-          setActiveTab(userShelves[0].id);
+        if (userShelves.length > 0 && userShelves[0].id) {
+          setActiveTab(userShelves[0].id!);
         }
       } catch (error) {
         console.error("Error fetching shelves:", error);
@@ -47,6 +56,7 @@ export function ShelvesTabView() {
     return (
       <div className="flex justify-center items-center p-8">
         <Text>No shelves found</Text>
+        <Button onClick={() => setIsAddShelfModalOpen(true)}>Add Shelf</Button>
       </div>
     );
   }
@@ -54,42 +64,14 @@ export function ShelvesTabView() {
   const activeShelf = shelves.find((shelf) => shelf.id === activeTab);
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Tabs Container */}
-      <div className="relative">
-        {/* Scrollable Tabs */}
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 min-w-full">
-            <div className="flex gap-1">
-              {shelves.map((shelf) => (
-                <button
-                  key={shelf.id}
-                  onClick={() => setActiveTab(shelf.id)}
-                  className={`px-4 py-2 -mb-px font-medium transition-colors whitespace-nowrap
-                    ${
-                      activeTab === shelf.id
-                        ? "border-b-2 border-sky-500 text-sky-600 dark:text-sky-400"
-                        : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-                    }`}
-                >
-                  {shelf.name}
-                </button>
-              ))}
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setIsAddShelfModalOpen(true)}
-              className="whitespace-nowrap px-4 py-2 -mb-px"
-            >
-              Add Shelf
-            </Button>
-          </div>
-        </div>
-
-        {/* Fade Indicators */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white dark:from-slate-800 to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white dark:from-slate-800 to-transparent" />
-      </div>
+    <div className="flex flex-col gap-4 p-2">
+      <ShelfTabs
+        shelves={shelves}
+        activeTab={activeTab}
+        onTabChange={(id) => setActiveTab(id)}
+        onAddClick={() => setIsAddShelfModalOpen(true)}
+        onDeleteClick={setShelfToDelete}
+      />
 
       {/* Content */}
       {activeShelf && (
@@ -98,10 +80,10 @@ export function ShelvesTabView() {
             <div className="flex justify-between items-center">
               <Text variant="subtitle">{activeShelf.name}</Text>
               <Button
-                variant="solid"
+                variant="outline"
                 onClick={() => setIsAddItemModalOpen(true)}
               >
-                Add Item
+                <Plus size={16} />
               </Button>
             </div>
 
@@ -153,7 +135,7 @@ export function ShelvesTabView() {
         onClose={() => setIsAddItemModalOpen(false)}
         onAdd={async (itemData) => {
           if (!user || !activeShelf) return;
-          await addItemToShelf(user.uid, activeShelf.id, itemData);
+          await addItemToShelf(user.uid, activeShelf.id!, itemData);
           // Refresh shelves
           const userShelves = await getUserShelves(user.uid);
           setShelves(userShelves);
@@ -163,6 +145,32 @@ export function ShelvesTabView() {
           quantity: activeShelf?.settings?.defaultQuantity || 1,
           expirationDays: activeShelf?.settings?.defaultExpirationDate || 7,
           location: activeShelf?.settings?.defaultLocation,
+        }}
+        shelfName={activeShelf?.name || ""}
+      />
+
+      {/* Delete Shelf Modal */}
+      <DeleteShelfModal
+        isOpen={shelfToDelete !== null}
+        onClose={() => setShelfToDelete(null)}
+        shelfName={shelfToDelete?.name ?? ""}
+        onDelete={async () => {
+          if (!user || !shelfToDelete || !shelfToDelete.id) return;
+          await deleteShelf(user.uid, shelfToDelete.id);
+
+          // Update active tab if needed
+          if (activeTab === shelfToDelete.id) {
+            const remainingShelves = shelves.filter(
+              (s) => s.id !== shelfToDelete.id
+            );
+            if (remainingShelves.length > 0 && remainingShelves[0].id) {
+              setActiveTab(remainingShelves[0].id!);
+            }
+          }
+
+          // Refresh shelves
+          const userShelves = await getUserShelves(user.uid);
+          setShelves(userShelves);
         }}
       />
     </div>

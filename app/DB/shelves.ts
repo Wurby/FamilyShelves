@@ -22,24 +22,8 @@ type FirestoreShelf = Omit<ShelfType, "createdAt" | "items"> & {
   >;
 };
 
-type Shelf = ShelfType & {
-  id: string;
-};
-
-function convertFirestoreShelf(doc: FirestoreShelf & { id: string }): Shelf {
-  return {
-    ...doc,
-    createdAt: doc.createdAt.toDate(),
-    items: (doc.items || []).map((item) => ({
-      ...item,
-      createdAt: item.createdAt.toDate(),
-      expirationDate: item.expirationDate.toDate(),
-    })),
-  };
-}
-
 // Get all shelves for a user
-export async function getUserShelves(userId: string): Promise<Shelf[]> {
+export async function getUserShelves(userId: string): Promise<ShelfType[]> {
   const shelvesRef = collection(db, "users", userId, "shelves");
   const shelvesSnapshot = await getDocs(shelvesRef);
 
@@ -55,7 +39,7 @@ export async function getUserShelves(userId: string): Promise<Shelf[]> {
 export async function getShelf(
   userId: string,
   shelfId: string
-): Promise<Shelf | null> {
+): Promise<ShelfType | null> {
   const shelfRef = doc(db, "users", userId, "shelves", shelfId);
   const shelfDoc = await getDoc(shelfRef);
 
@@ -142,4 +126,18 @@ export async function deleteShelf(
 ): Promise<void> {
   const shelfRef = doc(db, "users", userId, "shelves", shelfId);
   await deleteDoc(shelfRef);
+}
+
+function convertFirestoreShelf(
+  doc: FirestoreShelf & { id: string }
+): ShelfType {
+  return {
+    ...doc,
+    createdAt: doc.createdAt.toDate(),
+    items: (doc.items || []).map((item) => ({
+      ...item,
+      createdAt: item.createdAt.toDate(),
+      expirationDate: item.expirationDate.toDate(),
+    })),
+  };
 }

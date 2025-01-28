@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { Navigate } from "react-router";
 import { Text } from "../components/Text";
-import { ShelvesTabView } from "../components/shelves/ShelvesTabView";
+import { ShelfTable } from "../components/shelves/ShelfTable";
 
 // Colocated types
 namespace Route {
@@ -50,7 +50,7 @@ export default function App() {
 
             {/* Shelves Tab View */}
             <section className="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden">
-              <ShelvesTabView />
+              <ShelfTable />
             </section>
           </div>
         </div>

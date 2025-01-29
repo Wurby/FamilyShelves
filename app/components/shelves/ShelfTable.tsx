@@ -15,19 +15,34 @@ import { DeleteShelfModal } from "./DeleteShelfModal";
 import { ShelfTabs } from "./ShelfTabs";
 import { Plus } from "lucide-react";
 
-export function ShelfTable() {
-  const [shelves, setShelves] = useState<Shelf[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("");
-  const [loading, setLoading] = useState(true);
+interface ShelfTableProps {
+  shelves: Shelf[];
+  setShelves: (shelves: Shelf[]) => void;
+  activeTab: string;
+  setActiveTab: (id: string) => void;
+  shelfToDelete: Shelf | null;
+  setShelfToDelete: (shelf: Shelf | null) => void;
+  isAddShelfModalOpen: boolean;
+  setIsAddShelfModalOpen: (open: boolean) => void;
+}
+
+export function ShelfTable({
+  shelves,
+  setShelves,
+  activeTab,
+  setActiveTab,
+  shelfToDelete,
+  setShelfToDelete,
+  isAddShelfModalOpen,
+  setIsAddShelfModalOpen,
+}: ShelfTableProps) {
   const { user } = useAuth();
-  const [isAddShelfModalOpen, setIsAddShelfModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
-  const [shelfToDelete, setShelfToDelete] = useState<Shelf | null>(null);
 
   useEffect(() => {
     async function fetchShelves() {
       if (!user) return;
-
       try {
         const userShelves = await getUserShelves(user.uid);
         setShelves(userShelves);
@@ -40,7 +55,6 @@ export function ShelfTable() {
         setLoading(false);
       }
     }
-
     fetchShelves();
   }, [user]);
 
@@ -65,54 +79,42 @@ export function ShelfTable() {
 
   return (
     <div className="flex flex-col gap-4 p-2">
-      <ShelfTabs
-        shelves={shelves}
-        activeTab={activeTab}
-        onTabChange={(id) => setActiveTab(id)}
-        onAddClick={() => setIsAddShelfModalOpen(true)}
-        onDeleteClick={setShelfToDelete}
-      />
-
-      {/* Content */}
       {activeShelf && (
-        <div className="p-4 bg-white dark:bg-slate-800 rounded-lg shadow-md">
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <Text variant="subtitle">{activeShelf.name}</Text>
-              <Button
-                variant="outline"
-                onClick={() => setIsAddItemModalOpen(true)}
-              >
-                <Plus size={16} />
-              </Button>
-            </div>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <Text variant="subtitle">{activeShelf.name}</Text>
+            <Button
+              variant="icon"
+              icon={Plus}
+              onClick={() => setIsAddItemModalOpen(true)}
+            ></Button>
+          </div>
 
-            {/* Items List */}
-            {(activeShelf.items?.length ?? 0) > 0 ? (
-              <div className="grid gap-2">
-                {activeShelf.items?.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-md"
-                  >
-                    <div className="flex flex-col">
-                      <Text>{item.name}</Text>
-                      <Text variant="caption" muted>
-                        Expires: {item.expirationDate.toLocaleDateString()}
-                      </Text>
-                    </div>
-                    <Text>
-                      {item.quantity} {item.unit}
+          {/* Items List */}
+          {(activeShelf.items?.length ?? 0) > 0 ? (
+            <div className="grid gap-2">
+              {activeShelf.items?.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-md"
+                >
+                  <div className="flex flex-col">
+                    <Text>{item.name}</Text>
+                    <Text variant="caption" muted>
+                      Expires: {item.expirationDate.toLocaleDateString()}
                     </Text>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <Text muted centered>
-                No items in this shelf
-              </Text>
-            )}
-          </div>
+                  <Text>
+                    {item.quantity} {item.unit}
+                  </Text>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Text muted centered>
+              No items in this shelf
+            </Text>
+          )}
         </div>
       )}
 

@@ -1,6 +1,7 @@
-import { Trash } from "lucide-react";
+import { Trash, ChevronRight, Plus } from "lucide-react";
 import type { Shelf } from "~/DB/auth";
 import { Button } from "../Button";
+import { useState, useRef, useEffect } from "react";
 
 interface ShelfTabsProps {
   shelves: Shelf[];
@@ -17,59 +18,55 @@ export function ShelfTabs({
   onAddClick,
   onDeleteClick,
 }: ShelfTabsProps) {
+  const [showCaret, setShowCaret] = useState(false);
+
+  useEffect(() => {
+    setShowCaret(shelves.length > 2);
+  }, [shelves.length]);
+
   return (
-    <div className="relative">
-      <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700 min-w-full">
-          <div className="flex">
-            {shelves.map((shelf, index) => (
-              <div
-                key={shelf.id}
-                className={`flex items-center ${
-                  index > 0
-                    ? "border-l border-slate-200 dark:border-slate-700"
-                    : ""
-                }`}
+    <>
+      <div className="flex gap-2 relative overflow-x-auto overflow-y-hidden scrollbar-none">
+        <section className="flex flex-nowrap gap-2 mr-6 overflow-x-auto overflow-y-hidden scrollbar-none">
+          {shelves.map((shelf) => (
+            <div
+              key={shelf.id}
+              className={`flex items-center -mb-px transition-colors active:outline-none focus:outline-none
+                ${activeTab === shelf.id ? "border-b-2 border-sky-500" : ""}`}
+            >
+              <section
+                onClick={() => shelf.id && onTabChange(shelf.id)}
+                role="button"
+                aria-pressed={activeTab === shelf.id}
+                className={`px-4 py-2 font-medium transition-colors whitespace-nowrap active:outline-none focus:outline-none
+                  ${
+                    activeTab === shelf.id
+                      ? "text-sky-600 dark:text-sky-400"
+                      : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                  }`}
               >
-                <div
-                  className={`flex items-center -mb-px transition-colors active:outline-none focus:outline-none
-                    ${
-                      activeTab === shelf.id ? "border-b-2 border-sky-500" : ""
-                    }`}
-                >
-                  <button
-                    onClick={() => shelf.id && onTabChange(shelf.id)}
-                    className={`px-4 py-2 font-medium transition-colors whitespace-nowrap active:outline-none focus:outline-none
-                      ${
-                        activeTab === shelf.id
-                          ? "text-sky-600 dark:text-sky-400"
-                          : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-                      }`}
-                  >
-                    {shelf.name}
-                  </button>
-                  <Button
-                    variant="icon"
-                    warning
-                    onClick={() => onDeleteClick(shelf)}
-                    title="Delete shelf"
-                    className="mr-2 focus:outline-none active:outline-none"
-                  >
-                    <Trash size={16} />
-                  </Button>
-                </div>
-              </div>
-            ))}
+                {shelf.name}
+              </section>
+              <Button
+                variant="icon"
+                icon={Trash}
+                color="warning"
+                onClick={() => onDeleteClick(shelf)}
+                title="Delete shelf"
+                className="mr-2 focus:outline-none active:outline-none"
+              />
+            </div>
+          ))}
+          <div className="flex items-center">
+            <Button variant="icon" icon={Plus} onClick={onAddClick} />
           </div>
-          <Button
-            variant="outline"
-            onClick={onAddClick}
-            className="whitespace-nowrap px-4 py-2 -mb-px"
-          >
-            Add Shelf
-          </Button>
-        </div>
+        </section>
+        {showCaret && (
+          <div className="absolute h-full right-0 top-1/4 ">
+            <ChevronRight className="w-5 animate-pulse h-5 text-sky-400" />
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }

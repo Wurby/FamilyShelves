@@ -3,9 +3,11 @@ import { useAuth } from "../context/AuthContext";
 import { Navigate } from "react-router";
 import { Text } from "../components/Text";
 import { ShelfTable } from "../components/shelves/ShelfTable";
-import { ShelfTabs } from "~/components/shelves/ShelfTabs";
 import { useState } from "react";
 import type { Shelf } from "~/DB/auth";
+import { Plus } from "lucide-react";
+import { Button } from "~/components/Button";
+import ShelfControl from "~/components/ShelfControl/ShelfControl";
 
 // Colocated types
 namespace Route {
@@ -26,7 +28,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<string>("");
   const [shelfToDelete, setShelfToDelete] = useState<Shelf | null>(null);
   const [isAddShelfModalOpen, setIsAddShelfModalOpen] = useState(false);
-
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -42,27 +44,12 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen">
       <div className="flex flex-col gap-6">
-        {/* Welcome Section */}
-        <section className="flex flex-col gap-2 p-2">
-          <Text variant="subtitle">
-            Welcome back, {user.displayName || user.email}!
-          </Text>
-          <Text muted>
-            Start managing your home inventory and maintenance schedules.
-          </Text>
-        </section>
-
         <section className="flex flex-col gap-2 border-t pt-2 border-slate-200 dark:border-slate-800 scrollbar-hide">
           <Text centered variant="subtitle">
-            Your shelves
+            {activeTab
+              ? shelves.find((shelf) => shelf.id === activeTab)?.name
+              : "Your shelves"}
           </Text>
-          <ShelfTabs
-            shelves={shelves}
-            activeTab={activeTab}
-            onTabChange={(id) => setActiveTab(id)}
-            onAddClick={() => setIsAddShelfModalOpen(true)}
-            onDeleteClick={setShelfToDelete}
-          />
 
           <ShelfTable
             shelves={shelves}
@@ -73,6 +60,18 @@ export default function App() {
             setShelfToDelete={setShelfToDelete}
             isAddShelfModalOpen={isAddShelfModalOpen}
             setIsAddShelfModalOpen={setIsAddShelfModalOpen}
+            isAddItemModalOpen={isAddItemModalOpen}
+            setIsAddItemModalOpen={setIsAddItemModalOpen}
+          />
+        </section>
+        <section className="fixed bottom-0 pb-[env(safe-area-inset-bottom)] left-0 right-0">
+          <ShelfControl
+            setIsAddShelfModalOpen={setIsAddShelfModalOpen}
+            setIsAddItemModalOpen={setIsAddItemModalOpen}
+            shelves={shelves}
+            activeTab={activeTab}
+            onTabChange={(id) => setActiveTab(id)}
+            onDeleteClick={setShelfToDelete}
           />
         </section>
       </div>

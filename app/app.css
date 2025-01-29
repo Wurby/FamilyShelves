@@ -7,22 +7,11 @@
 @layer base {
   /* Focus styles for better accessibility */
   :focus {
-    @apply outline-none ring-2 ring-sky-500 dark:ring-sky-400 ring-offset-2 dark:ring-offset-sky-900;
+    @apply outline-none;
   }
 
   /* Selection color */
   ::selection {
     @apply bg-slate-500 text-white;
-  }
-
-  /* Check if there are any color-scheme or dark mode related styles here */
-  :root {
-    color-scheme: light dark; /* Remove if present */
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      /* Remove any color scheme overrides */
-    }
   }
 }

@@ -8,12 +8,11 @@ import {
 } from "~/DB/shelves";
 import type { Shelf } from "~/DB/auth";
 import { Text } from "../Text";
-import { Button } from "../Button";
 import { AddShelfModal } from "./AddShelfModal";
 import { AddItemModal } from "../items/AddItemModal";
 import { DeleteShelfModal } from "./DeleteShelfModal";
-import { ShelfTabs } from "./ShelfTabs";
-import { Plus } from "lucide-react";
+import { Info, X } from "lucide-react";
+import { Button } from "../Button";
 
 interface ShelfTableProps {
   shelves: Shelf[];
@@ -24,6 +23,68 @@ interface ShelfTableProps {
   setShelfToDelete: (shelf: Shelf | null) => void;
   isAddShelfModalOpen: boolean;
   setIsAddShelfModalOpen: (open: boolean) => void;
+  isAddItemModalOpen: boolean;
+  setIsAddItemModalOpen: (open: boolean) => void;
+}
+
+interface ShelfItem {
+  name: string;
+  quantity: number;
+  unit: string;
+  expirationDate: Date;
+  notes?: string;
+  location?: string;
+}
+
+interface ItemDetailsPopupProps {
+  item: ShelfItem;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+function ItemDetailsPopup({ item, isOpen, onClose }: ItemDetailsPopupProps) {
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+        onClick={onClose}
+      />
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 bg-white dark:bg-slate-800 rounded-lg shadow-lg z-50 p-4">
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <Text variant="subtitle">{item.name}</Text>
+            <Button variant="iconNoBorder" icon={X} onClick={onClose} />
+          </div>
+
+          <div className="grid gap-2">
+            <div>
+              <Text variant="caption">Location</Text>
+              <Text>{item.location || "No location set"}</Text>
+            </div>
+
+            <div>
+              <Text variant="caption">Quantity</Text>
+              <Text>
+                {item.quantity} {item.unit}
+              </Text>
+            </div>
+
+            <div>
+              <Text variant="caption">Expiration Date</Text>
+              <Text>{item.expirationDate.toLocaleDateString()}</Text>
+            </div>
+
+            <div>
+              <Text variant="caption">Notes</Text>
+              <Text>{item.notes || "No notes"}</Text>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export function ShelfTable({
@@ -35,10 +96,12 @@ export function ShelfTable({
   setShelfToDelete,
   isAddShelfModalOpen,
   setIsAddShelfModalOpen,
+  isAddItemModalOpen,
+  setIsAddItemModalOpen,
 }: ShelfTableProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ShelfItem | null>(null);
 
   useEffect(() => {
     async function fetchShelves() {
@@ -70,7 +133,6 @@ export function ShelfTable({
     return (
       <div className="flex justify-center items-center p-8">
         <Text>No shelves found</Text>
-        <Button onClick={() => setIsAddShelfModalOpen(true)}>Add Shelf</Button>
       </div>
     );
   }
@@ -78,35 +140,37 @@ export function ShelfTable({
   const activeShelf = shelves.find((shelf) => shelf.id === activeTab);
 
   return (
-    <div className="flex flex-col gap-4 p-2">
+    <>
       {activeShelf && (
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <Text variant="subtitle">{activeShelf.name}</Text>
-            <Button
-              variant="icon"
-              icon={Plus}
-              onClick={() => setIsAddItemModalOpen(true)}
-            ></Button>
-          </div>
-
-          {/* Items List */}
+        <div className="flex flex-col border-2 border-slate-400 dark:border-slate-600">
           {(activeShelf.items?.length ?? 0) > 0 ? (
-            <div className="grid gap-2">
+            <div className="flex flex-col">
               {activeShelf.items?.map((item, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700 rounded-md"
+                  className={`${
+                    index % 2 > 0 ? "bg-slate-300 dark:bg-slate-600" : ""
+                  } flex justify-between h-14 items-center divide-x-2 divide-slate-400 dark:divide-slate-600`}
                 >
-                  <div className="flex flex-col">
-                    <Text>{item.name}</Text>
+                  <div className="flex flex-col px-2 py-1 w-1/3">
+                    <Text variant="subtitle">{item.name}</Text>
                     <Text variant="caption" muted>
                       Expires: {item.expirationDate.toLocaleDateString()}
                     </Text>
                   </div>
-                  <Text>
-                    {item.quantity} {item.unit}
-                  </Text>
+                  <div
+                    role="button"
+                    onClick={() => setSelectedItem(item)}
+                    className="flex items-center justify-center w-1/3 h-full hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                  >
+                    <Text>Item Details</Text>
+                    <Button variant="iconNoBorder" color="muted" icon={Info} />
+                  </div>
+                  <div className="flex flex-col w-1/3 px-2 py-1 justify-end items-end">
+                    <Text>
+                      {item.quantity} {item.unit}
+                    </Text>
+                  </div>
                 </div>
               ))}
             </div>
@@ -118,27 +182,31 @@ export function ShelfTable({
         </div>
       )}
 
-      {/* Add Shelf Modal */}
+      <ItemDetailsPopup
+        item={selectedItem!}
+        isOpen={selectedItem !== null}
+        onClose={() => setSelectedItem(null)}
+      />
+
       <AddShelfModal
         isOpen={isAddShelfModalOpen}
         onClose={() => setIsAddShelfModalOpen(false)}
         onAdd={async ({ name }) => {
           if (!user) return;
           await createShelf(user.uid, { name });
-          // Refresh shelves
+
           const userShelves = await getUserShelves(user.uid);
           setShelves(userShelves);
         }}
       />
 
-      {/* Add Item Modal */}
       <AddItemModal
         isOpen={isAddItemModalOpen}
         onClose={() => setIsAddItemModalOpen(false)}
         onAdd={async (itemData) => {
           if (!user || !activeShelf) return;
           await addItemToShelf(user.uid, activeShelf.id!, itemData);
-          // Refresh shelves
+
           const userShelves = await getUserShelves(user.uid);
           setShelves(userShelves);
         }}
@@ -151,7 +219,6 @@ export function ShelfTable({
         shelfName={activeShelf?.name || ""}
       />
 
-      {/* Delete Shelf Modal */}
       <DeleteShelfModal
         isOpen={shelfToDelete !== null}
         onClose={() => setShelfToDelete(null)}
@@ -160,7 +227,6 @@ export function ShelfTable({
           if (!user || !shelfToDelete || !shelfToDelete.id) return;
           await deleteShelf(user.uid, shelfToDelete.id);
 
-          // Update active tab if needed
           if (activeTab === shelfToDelete.id) {
             const remainingShelves = shelves.filter(
               (s) => s.id !== shelfToDelete.id
@@ -170,11 +236,10 @@ export function ShelfTable({
             }
           }
 
-          // Refresh shelves
           const userShelves = await getUserShelves(user.uid);
           setShelves(userShelves);
         }}
       />
-    </div>
+    </>
   );
 }

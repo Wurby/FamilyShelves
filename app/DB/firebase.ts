@@ -1,8 +1,13 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  initializeAuth as initAuth,
+  indexedDBLocalPersistence,
+} from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
+import { Capacitor } from "@capacitor/core";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -20,7 +25,14 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
+// Initialize Auth with persistence for Capacitor
+const auth = Capacitor.isNativePlatform()
+  ? initAuth(app, {
+      persistence: indexedDBLocalPersistence,
+    })
+  : getAuth(app);
+
 const db = getFirestore(app);
 
 // Initialize Analytics only on the client side
@@ -28,6 +40,36 @@ let analytics = null;
 if (typeof window !== "undefined") {
   // Check if we're in the browser
   isSupported().then((yes) => (yes ? getAnalytics(app) : null));
+}
+
+export async function initializeAuth() {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error("Auth initialization timeout"));
+    }, 10000);
+
+    // For native platforms, resolve immediately
+    if (Capacitor.isNativePlatform()) {
+      console.log("Firebase: Running on native platform");
+      clearTimeout(timeoutId);
+      resolve(true);
+      return;
+    }
+
+    // Otherwise use auth state listener
+    auth.onAuthStateChanged(
+      () => {
+        console.log("Firebase: Auth state change detected");
+        clearTimeout(timeoutId);
+        resolve(true);
+      },
+      (error) => {
+        console.error("Firebase: Auth state change error", error);
+        clearTimeout(timeoutId);
+        reject(error);
+      }
+    );
+  });
 }
 
 export { app, analytics, auth, db };

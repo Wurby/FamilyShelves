@@ -24,12 +24,14 @@ export function meta({}: Route.MetaArgs) {
 
 export default function App() {
   const { user, loading } = useAuth();
+  console.log("App: Rendering", { loading, user: !!user });
   const [shelves, setShelves] = useState<Shelf[]>([]);
   const [activeTab, setActiveTab] = useState<string>("");
   const [shelfToDelete, setShelfToDelete] = useState<Shelf | null>(null);
   const [isAddShelfModalOpen, setIsAddShelfModalOpen] = useState(false);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   if (loading) {
+    console.log("App: Showing loading state");
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-xl">Loading...</div>
@@ -38,6 +40,7 @@ export default function App() {
   }
 
   if (!user) {
+    console.log("App: Redirecting to login");
     return <Navigate to="/login" />;
   }
 

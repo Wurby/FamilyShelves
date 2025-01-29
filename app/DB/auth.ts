@@ -113,7 +113,22 @@ export async function login(
   email: string,
   password: string
 ): Promise<UserCredential> {
-  return signInWithEmailAndPassword(auth, email, password);
+  console.log("Login: Attempting login for", { email });
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    console.log("Login: Success", {
+      email: result.user.email,
+      uid: result.user.uid,
+    });
+    return result;
+  } catch (error) {
+    console.error("Login: Failed", {
+      code: error.code,
+      message: error.message,
+      stack: error.stack,
+    });
+    throw error;
+  }
 }
 
 export async function logout(): Promise<void> {

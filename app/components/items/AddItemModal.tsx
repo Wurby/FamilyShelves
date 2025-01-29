@@ -103,92 +103,94 @@ export function AddItemModal({
         </div>
       }
     >
-      <form
-        id="addItemForm"
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4"
-      >
-        <div>
+      <div className="flex flex-col h-full pb-[env(safe-area-inset-bottom)] pb-keyboard">
+        <form
+          id="addItemForm"
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4"
+        >
+          <div>
+            <label className="flex flex-col gap-2">
+              <Text variant="caption">Item Name</Text>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="p-2 border-2 border-slate-500 rounded-md w-full"
+                placeholder="e.g., Milk"
+                required
+                autoFocus
+              />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <label className="flex flex-col gap-2">
+              <Text variant="caption">Quantity</Text>
+              <input
+                type="number"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="p-2 border-2 border-slate-500 rounded-md w-full"
+                min="0"
+                step="1"
+                required
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <Text variant="caption">Unit</Text>
+              <input
+                type="text"
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                className="p-2 border-2 border-slate-500 rounded-md w-full"
+                placeholder="e.g., each, lbs, oz"
+                required
+              />
+            </label>
+          </div>
+
           <label className="flex flex-col gap-2">
-            <Text variant="caption">Item Name</Text>
+            <Text variant="caption">Expiration Date</Text>
+            <input
+              type="date"
+              value={expirationDate.toISOString().split("T")[0]}
+              onChange={(e) => setExpirationDate(new Date(e.target.value))}
+              className="p-2 border-2 border-slate-500 rounded-md w-full"
+              required
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <Text variant="caption">Location (Optional)</Text>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               className="p-2 border-2 border-slate-500 rounded-md w-full"
-              placeholder="e.g., Milk"
-              required
-              autoFocus
-            />
-          </label>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <label className="flex flex-col gap-2">
-            <Text variant="caption">Quantity</Text>
-            <input
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="p-2 border-2 border-slate-500 rounded-md w-full"
-              min="0"
-              step="1"
-              required
+              placeholder="e.g., Top Shelf"
             />
           </label>
 
           <label className="flex flex-col gap-2">
-            <Text variant="caption">Unit</Text>
-            <input
-              type="text"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
+            <Text variant="caption">Notes (Optional)</Text>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
               className="p-2 border-2 border-slate-500 rounded-md w-full"
-              placeholder="e.g., each, lbs, oz"
-              required
+              placeholder="Any additional details..."
+              rows={3}
             />
           </label>
-        </div>
 
-        <label className="flex flex-col gap-2">
-          <Text variant="caption">Expiration Date</Text>
-          <input
-            type="date"
-            value={expirationDate.toISOString().split("T")[0]}
-            onChange={(e) => setExpirationDate(new Date(e.target.value))}
-            className="p-2 border-2 border-slate-500 rounded-md w-full"
-            required
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <Text variant="caption">Location (Optional)</Text>
-          <input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="p-2 border-2 border-slate-500 rounded-md w-full"
-            placeholder="e.g., Top Shelf"
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <Text variant="caption">Notes (Optional)</Text>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="p-2 border-2 border-slate-500 rounded-md w-full"
-            placeholder="Any additional details..."
-            rows={3}
-          />
-        </label>
-
-        {error && (
-          <Text variant="caption" className="text-red-500">
-            {error}
-          </Text>
-        )}
-      </form>
+          {error && (
+            <Text variant="caption" className="text-red-500">
+              {error}
+            </Text>
+          )}
+        </form>
+      </div>
     </Modal>
   );
 }

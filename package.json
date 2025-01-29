@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
+    "ios": "react-router build && npx cap sync && npx cap open ios",
+    "android": "react-router build && npx cap sync && npx cap open android",
     "dev": "react-router dev --host",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"

@@ -22,7 +22,7 @@ export const ShelfControl = ({
   setIsAddItemModalOpen,
 }: ShelfControlProps) => {
   return (
-    <section className="fixed flex divide-x-2 divide-slate-400 dark:divide-slate-600 justify-between items-stretch bottom-0 pb-[env(safe-area-inset-bottom)] left-0 w-full h-18 bg-slate-300 dark:bg-slate-800 border-t-2 border-sky-300 dark:border-sky-600">
+    <section className="fixed flex divide-x-2 divide-slate-400 dark:divide-slate-600 justify-between items-stretch bottom-0 pb-[env(safe-area-inset-bottom)] left-0 w-full h-18 bg-slate-300 dark:bg-slate-800 border-t-2 border-sky-300 dark:border-sky-600 z-10">
       {/* Left side */}
       <div className="flex items-center pl-4 w-1/2">
         <BookShelf

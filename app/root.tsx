@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { useEffect } from "react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -24,32 +25,43 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export default function Root() {
+  useEffect(() => {
+    console.log("Root mounted");
+    // Prevent viewport scaling when focusing inputs
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (viewportMeta) {
+      viewportMeta.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+      );
+    }
+  }, []);
+
+  console.log("Root rendering");
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+          content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
         />
         <Meta />
         <Links />
       </head>
-      <body className="min-h-screen bg-slate-200 dark:bg-slate-950">
+      <body className="min-h-screen bg-slate-200 dark:bg-slate-950 overscroll-none">
         <div className="h-[env(safe-area-inset-top,47px)] w-full min-h-[env(safe-area-inset-top,47px)] block" />
         <main className="flex flex-col min-h-screen bg-slate-200 dark:bg-slate-950">
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <Outlet />
+          </AuthProvider>
         </main>
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   );
-}
-
-export default function App() {
-  return <Outlet />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

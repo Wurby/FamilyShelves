@@ -42,39 +42,37 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex flex-col gap-6">
-        <section className="flex flex-col gap-2 border-t pt-2 border-slate-200 dark:border-slate-800 scrollbar-hide">
-          <Text centered variant="subtitle">
-            {activeTab
-              ? shelves.find((shelf) => shelf.id === activeTab)?.name
-              : "Your shelves"}
-          </Text>
+    <div className="flex flex-col w-full h-screen">
+      <section className="flex flex-col gap-2 border-t pt-2 border-slate-200 dark:border-slate-800 scrollbar-hide mx-auto w-full md:w-xl">
+        <Text centered variant="subtitle">
+          {activeTab
+            ? shelves.find((shelf) => shelf.id === activeTab)?.name
+            : "Your shelves"}
+        </Text>
 
-          <ShelfTable
-            shelves={shelves}
-            setShelves={setShelves}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            shelfToDelete={shelfToDelete}
-            setShelfToDelete={setShelfToDelete}
-            isAddShelfModalOpen={isAddShelfModalOpen}
-            setIsAddShelfModalOpen={setIsAddShelfModalOpen}
-            isAddItemModalOpen={isAddItemModalOpen}
-            setIsAddItemModalOpen={setIsAddItemModalOpen}
-          />
-        </section>
-        <section className="fixed bottom-0 pb-[env(safe-area-inset-bottom)] left-0 right-0">
-          <ShelfControl
-            setIsAddShelfModalOpen={setIsAddShelfModalOpen}
-            setIsAddItemModalOpen={setIsAddItemModalOpen}
-            shelves={shelves}
-            activeTab={activeTab}
-            onTabChange={(id) => setActiveTab(id)}
-            onDeleteClick={setShelfToDelete}
-          />
-        </section>
-      </div>
+        <ShelfTable
+          shelves={shelves}
+          setShelves={setShelves}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          shelfToDelete={shelfToDelete}
+          setShelfToDelete={setShelfToDelete}
+          isAddShelfModalOpen={isAddShelfModalOpen}
+          setIsAddShelfModalOpen={setIsAddShelfModalOpen}
+          isAddItemModalOpen={isAddItemModalOpen}
+          setIsAddItemModalOpen={setIsAddItemModalOpen}
+        />
+      </section>
+      <section className="fixed bottom-0 pb-[env(safe-area-inset-bottom)] left-0 right-0">
+        <ShelfControl
+          setIsAddShelfModalOpen={setIsAddShelfModalOpen}
+          setIsAddItemModalOpen={setIsAddItemModalOpen}
+          shelves={shelves}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id)}
+          onDeleteClick={setShelfToDelete}
+        />
+      </section>
     </div>
   );
 }

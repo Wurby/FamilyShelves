@@ -45,12 +45,12 @@ export const BookShelf = ({
     <>
       {isOpen && <div className="fixed inset-0 bg-black/20 backdrop-blur-sm" />}
 
-      <div ref={containerRef} className="relative z-20">
+      <div ref={containerRef} className="relative z-20 w-full h-full">
         <div
           onClick={() => setIsOpen(!isOpen)}
           role="button"
           aria-label="Open shelf"
-          className="flex items-center gap-2 justify-around w-full"
+          className="flex items-center gap-2 px-2 h-full hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
         >
           <Button
             variant="iconNoBorder"
@@ -59,19 +59,22 @@ export const BookShelf = ({
           />
           <Text>Shelves</Text>
         </div>
+
         <section
-          className={`transition-all duration-300 ${
+          className={`transition-all duration-300 absolute bottom-full w-full ${
             isOpen
-              ? "absolute -translate-y-full w-36"
-              : "absolute translate-y-full w-36"
+              ? "translate-y-0 opacity-100"
+              : "translate-y-4 opacity-0 pointer-events-none"
           }`}
         >
-          <div className="flex flex-col w-full bg-white dark:bg-slate-800 shadow-lg">
+          <div className="flex flex-col w-full bg-white dark:bg-slate-800 shadow-lg rounded-t-lg overflow-hidden max-h-[60vh] overflow-y-auto">
             {shelves.map((shelf) => (
               <div
                 key={shelf.id}
-                className={`flex items-center justify-between py-4 px-1 border-b border-slate-200 dark:border-slate-700
-              ${activeTab === shelf.id ? "bg-sky-50 dark:bg-sky-900/30" : ""}`}
+                className={`flex items-center justify-between py-4 px-3 border-b border-slate-200 dark:border-slate-700
+                ${
+                  activeTab === shelf.id ? "bg-sky-50 dark:bg-sky-900/30" : ""
+                }`}
               >
                 <Button
                   variant="icon"
@@ -88,12 +91,12 @@ export const BookShelf = ({
                   }}
                   role="button"
                   aria-label={`Switch to ${shelf.name} shelf`}
-                  className={`flex-grow text-right px-2 py-1 h-full rounded-md
-                ${
-                  activeTab === shelf.id
-                    ? "text-sky-600 dark:text-sky-400"
-                    : "text-slate-700 dark:text-slate-300"
-                }`}
+                  className={`flex-grow text-right px-2 py-1 rounded-md
+                  ${
+                    activeTab === shelf.id
+                      ? "text-sky-600 dark:text-sky-400"
+                      : "text-slate-700 dark:text-slate-300"
+                  }`}
                 >
                   {shelf.name}
                 </div>
@@ -103,7 +106,7 @@ export const BookShelf = ({
               role="button"
               aria-label="Add shelf"
               onClick={() => setIsAddShelfModalOpen(true)}
-              className={`flex items-center justify-between py-4 px-1 border-b  border-slate-200 dark:border-slate-700`}
+              className="flex items-center justify-between py-4 px-3 hover:bg-black/5 dark:hover:bg-white/5"
             >
               <Button
                 variant="icon"
